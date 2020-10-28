@@ -250,7 +250,7 @@ public class ExtensionLoader<T> {
         if (exceptions.containsKey(name.toLowerCase())) {
             return exceptions.get(name.toLowerCase());
         }
-        StringBuilder buf = new StringBuilder("No such extension " + type.getName() + "by name " + name);
+        StringBuilder buf = new StringBuilder("No such extension " + type.getName() + " by name " + name);
 
         int i = 1;
         for (Map.Entry<String, IllegalStateException> entry : exceptions.entrySet()) {

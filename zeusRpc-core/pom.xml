@@ -11,5 +11,12 @@
 
     <artifactId>zeusRpc-core</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>group.zeus</groupId>
+            <artifactId>zeusRpc-spi</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 </project>

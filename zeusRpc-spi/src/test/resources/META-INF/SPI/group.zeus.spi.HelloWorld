@@ -1,1 +1,2 @@
 hello1 = group.zeus.spi.HelloWorldImpl
+hello2 = group.zeus.spi.HelloWorldImpl2

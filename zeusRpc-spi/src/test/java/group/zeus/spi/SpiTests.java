@@ -2,6 +2,7 @@ package group.zeus.spi;
 
 
 import org.junit.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  * @Author: maodazhan
@@ -24,6 +25,12 @@ public class SpiTests {
         // get default extension impl instance
         HelloWorld instance = SpiFactory.getExtension(HelloWorld.class, "default");
         instance.sayHello();
+    }
+
+    @Test
+    public void testSpringSPI(){
+        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(TestSpiConfiguration.class);
+        applicationContext.getBean(HelloWorld.class).sayHello();
     }
 
 }
