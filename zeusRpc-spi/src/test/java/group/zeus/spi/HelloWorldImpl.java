@@ -7,6 +7,6 @@ package group.zeus.spi;
 public class HelloWorldImpl implements HelloWorld{
     @Override
     public void sayHello() {
-        System.out.println("Hello, I'm on behalf of one extension implementation of Interface HelloWord");
+        System.out.println("Hello, I'm on behalf of one extension implementation of Interface HelloWord, named `hello1`");
     }
 }
