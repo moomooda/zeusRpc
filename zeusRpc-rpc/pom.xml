@@ -9,7 +9,14 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>zeusRpc-loadbalance</artifactId>
+    <artifactId>zeusRpc-rpc</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>group.zeus</groupId>
+            <artifactId>zeusRpc-spi</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 </project>
