@@ -22,6 +22,12 @@
             <artifactId>zeusRpc-rpc</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <!-- Netty -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.0.0.Final</version>
+        </dependency>
     </dependencies>
 
 </project>

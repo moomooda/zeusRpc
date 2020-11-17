@@ -11,5 +11,26 @@
 
     <artifactId>zeusRpc-demo</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>group.zeus</groupId>
+            <artifactId>zeusRpc-rpc</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <!--SPI核心-->
+        <dependency>
+            <groupId>group.zeus</groupId>
+            <artifactId>zeusRpc-spi</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <!--SPI默认实现-->
+        <dependency>
+            <groupId>group.zeus</groupId>
+            <artifactId>zeusRpc-spi-default</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 </project>
