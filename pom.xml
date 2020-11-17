@@ -13,6 +13,7 @@
         <module>zeusRpc-demo</module>
         <module>zeusRpc-rpc</module>
         <module>zeusRpc-spi-default</module>
+        <module>zeusRpc-sentinel</module>
     </modules>
 
     <properties>
@@ -64,12 +65,12 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>5.2.6.RELEASE</version>
+            <version>4.3.12.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>5.2.6.RELEASE</version>
+            <version>4.3.12.RELEASE</version>
             <scope>test</scope>
         </dependency>
         <!-- FastJson -->

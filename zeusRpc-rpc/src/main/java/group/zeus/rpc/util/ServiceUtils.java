@@ -1,11 +1,11 @@
 package group.zeus.rpc.util;
 
-import group.zeus.rpc.core.RpcProtocal;
-import group.zeus.rpc.core.RpcRequestHanlder;
-import group.zeus.rpc.core.RpcServiceInfo;
+import group.zeus.rpc.dto.RpcProtocol;
+import group.zeus.rpc.dto.RpcServiceInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,35 +15,42 @@ import java.util.Map;
  */
 public class ServiceUtils {
 
-    private static final String SERVICE_CONCAT_TOKEN ="#";
+    public static final String SERVICE_CONCAT_TOKEN = "#";
+
+    private static final Logger Logger = LoggerFactory.getLogger(ServiceUtils.class);
 
     /*构建服务的key*/
-    public static String buildServiceKey(String interfaceName, String version){
+    public static String buildServiceKey(String interfaceName, String version) {
         String serviceKey = interfaceName;
-        if (version!=null&& version.trim().length()>0){
+        if (version != null && version.trim().length() > 0) {
             serviceKey += SERVICE_CONCAT_TOKEN.concat(version);
         }
         return serviceKey;
     }
 
-    /*用于负载均衡*/
-    public static Map<String, List<RpcProtocal>> getConnGroupByServiceKey(Map<RpcProtocal, RpcRequestHanlder> Connect_Nodes){
-        Map<String, List<RpcProtocal>> serviceMap = new HashMap<>();
-        if (Connect_Nodes !=null && Connect_Nodes.size() > 0){
-            // 遍历每一个连接地址
-            for (RpcProtocal rpcProtocal: Connect_Nodes.keySet()){
-                // 遍历服务地址所有服务
-                for(RpcServiceInfo rpcServiceInfo : rpcProtocal.getServiceInfoList()){
-                    String serviceKey = ServiceUtils.buildServiceKey(rpcServiceInfo.getServiceName(), rpcServiceInfo.getVersion());
-                    List<RpcProtocal> rpcProtocalList  = serviceMap.get(serviceKey);
-                    if (rpcProtocalList ==null)
-                        rpcProtocalList = new ArrayList<>();
-                    rpcProtocalList.add(rpcProtocal);
-                    serviceMap.putIfAbsent(serviceKey, rpcProtocalList);
+    /*rpcProtocols分组，只取当前serviceKey对应的*/
+    public static List<RpcProtocol> getProtocolsByServiceKey(String serviceKey, List<RpcProtocol> rpcProtocols) {
+        if (rpcProtocols == null || rpcProtocols.size() == 0) {
+            throw new IllegalStateException("No available Service,check again");
+        }
+        List<RpcProtocol> results = new ArrayList<>();
+        // 遍历每一个连接
+        for (RpcProtocol rpcProtocol : rpcProtocols){
+            // 遍历连接的每一项服务
+            for (RpcServiceInfo rpcServiceInfo : rpcProtocol.getServiceInfoList()){
+                String thatServiceKey = buildServiceKey(rpcServiceInfo.getServiceName(), rpcServiceInfo.getVersion());
+                if (serviceKey.equals(thatServiceKey)){
+                    results.add(rpcProtocol);
                 }
             }
         }
-        return serviceMap;
+        return results;
     }
 
+    /*用于注册暴露服务的bean*/
+    public static void addService(Map<String, Object> serviceMap, String interfaceName, String version, Object serviceBean) {
+        Logger.info("Adding service, interface: {}, version: {}, bean：{}", interfaceName, version, serviceBean);
+        String serviceKey = ServiceUtils.buildServiceKey(interfaceName, version);
+        serviceMap.put(serviceKey, serviceBean);
+    }
 }

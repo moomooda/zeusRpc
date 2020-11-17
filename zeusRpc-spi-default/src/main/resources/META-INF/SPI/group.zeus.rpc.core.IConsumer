@@ -1,0 +1,1 @@
+netty = group.zeus.spi.communication.netty.NettyConsumerClient

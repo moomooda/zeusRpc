@@ -1,4 +1,4 @@
-package group.zeus.rpc.core;
+package group.zeus.rpc.dto;
 
 import com.alibaba.fastjson.JSON;
 
@@ -15,11 +15,6 @@ public class RpcServiceInfo implements Serializable {
 
     private String serviceName;
     private String version;
-
-    public RpcServiceInfo(String serviceName, String version) {
-        this.serviceName = serviceName;
-        this.version = version;
-    }
 
     public String getServiceName() {
         return serviceName;

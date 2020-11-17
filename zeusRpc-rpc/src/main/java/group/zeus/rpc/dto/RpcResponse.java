@@ -33,4 +33,8 @@ public class RpcResponse implements Serializable {
     public void setResult(Object result) {
         this.result = result;
     }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
 }
