@@ -41,7 +41,7 @@ public class RpcProxy<T> implements InvocationHandler {
         rpcRequest.setVersion(version);
         String serviceKey = ServiceUtils.buildServiceKey(this.interfaceClass.getName(), version);
         RpcProtocol rpcProtocol = chooseRpcProtocol(serviceKey);
-        RpcFuture future = iConsumer.connect(rpcProtocol, rpcRequest);
+        RpcFuture future = (RpcFuture) iConsumer.connect(rpcProtocol, rpcRequest);
         return future.get();
     }
 

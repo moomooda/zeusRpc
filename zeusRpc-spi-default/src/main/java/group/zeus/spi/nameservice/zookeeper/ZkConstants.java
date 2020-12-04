@@ -5,7 +5,6 @@ package group.zeus.spi.nameservice.zookeeper;
  * @Date: 2020/11/1 11:02
  */
 public interface ZkConstants {
-    // TODO 这两个有什么区别
     int ZK_SESSION_TIMEOUT = 5000;
     int ZK_CONNECTION_TIMEOUT = 5000;
 

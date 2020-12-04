@@ -4,6 +4,7 @@ import group.zeus.rpc.core.INameService;
 import group.zeus.rpc.dto.RpcProtocol;
 import group.zeus.rpc.dto.RpcServiceInfo;
 import group.zeus.rpc.util.ServiceUtils;
+import group.zeus.spi.nameservice.NameServiceUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
@@ -43,37 +44,15 @@ public class ZookeeperImpl implements INameService {
     public void register(String registryAddress, String serviceAddress, Map<String, Object> serviceMap) {
         curatorClient = new CuratorClient(registryAddress);
         // service info list
-        List<RpcServiceInfo> serviceInfoList = new ArrayList<>();
-        for (String key : serviceMap.keySet()) {
-            String[] serviceInfo = key.split(ServiceUtils.SERVICE_CONCAT_TOKEN);
-            if (serviceInfo.length > 0) {
-                RpcServiceInfo rpcServiceInfo = new RpcServiceInfo();
-                rpcServiceInfo.setServiceName(serviceInfo[0]);
-                if (serviceInfo.length == 2) {
-                    rpcServiceInfo.setVersion(serviceInfo[1]);
-                } else {
-                    rpcServiceInfo.setVersion("");
-                }
-                logger.info("Register new service: {} ", key);
-                serviceInfoList.add(rpcServiceInfo);
-            } else {
-                logger.warn("Cannot get service name and version: {} ", key);
-            }
-        }
+        List<RpcServiceInfo> serviceInfoList = NameServiceUtils.getRpcServiceInfos(serviceMap);
         try {
-            String[] array = serviceAddress.split(":");
-            String host = array[0];
-            int port = Integer.parseInt(array[1]);
-            RpcProtocol rpcProtocol = new RpcProtocol();
-            rpcProtocol.setHost(host);
-            rpcProtocol.setPort(port);
-            rpcProtocol.setServiceInfoList(serviceInfoList);
+            RpcProtocol rpcProtocol = NameServiceUtils.getRpcProtocol(serviceAddress, serviceInfoList);
             String serviceData = rpcProtocol.toJson();
             byte[] bytes = serviceData.getBytes();
             String path = ZkConstants.ZK_DATA_PATH + "-" + rpcProtocol.hashCode();
             this.curatorClient.createPathData(path, bytes);
             pathList.add(path);
-            logger.info("Register {} new service, host: {}, port: {}", serviceInfoList.size(), host, port);
+            logger.info("Register {} new service, host: {}, port: {}", serviceInfoList.size(), rpcProtocol.getHost(), rpcProtocol.getPort());
         } catch (Exception ex) {
             logger.error("Register service fail, exception: {}", ex.getMessage());
         }
@@ -100,7 +79,6 @@ public class ZookeeperImpl implements INameService {
             curatorClient.watchPathChildrenCache(ZkConstants.ZK_RPC_PATH, new PathChildrenCacheListener() {
                 @Override
                 public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
-                    // TODO 这部分不是由主线程去执行的
                     PathChildrenCacheEvent.Type type = event.getType();
                     switch (type) {
                         case CONNECTION_RECONNECTED:
