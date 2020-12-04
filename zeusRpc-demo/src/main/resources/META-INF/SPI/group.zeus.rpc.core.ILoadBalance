@@ -1,0 +1,2 @@
+lru = group.zeus.spi.loadbalance.LruImpl
+roundrobin = group.zeus.spi.loadbalance.RoundRobinImpl

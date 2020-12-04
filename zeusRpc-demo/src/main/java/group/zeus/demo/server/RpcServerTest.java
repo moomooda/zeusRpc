@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Netty+zookeeper+一致性hash
  * 不使用Spring驱动
- *
  * @Author: maodazhan
  * @Date: 2020/11/9 10:17
  */
@@ -23,10 +23,13 @@ public class RpcServerTest {
 
     public static void main(String[] args) {
         Map<String, Object> serviceMap = new HashMap<>();
-        IProvider provider = SpiFactory.getExtension(IProvider.class, "default");
-        INameService nameService = SpiFactory.getExtension(INameService.class, "default");
+//        IProvider provider = SpiFactory.getExtension(IProvider.class, "default");
+        IProvider provider = SpiFactory.getExtension(IProvider.class, "tomcat");
+//        INameService nameService = SpiFactory.getExtension(INameService.class, "default");
+        INameService nameService = SpiFactory.getExtension(INameService.class, "redis");
         String serverAddress = "127.0.0.1:18877";
-        String registryAddress = "222.28.84.14:2181";
+//        String registryAddress = "222.28.84.14:2181";
+        String registryAddress = "222.28.84.14:6379";
         HelloService helloService = new HelloImpl();
         ServiceUtils.addService(serviceMap, HelloService.class.getName(), "1.0", helloService);
         HelloService helloService2 = new HelloImpl2();
@@ -39,9 +42,10 @@ public class RpcServerTest {
             logger.error("Exception: {}", ex);
         }
         try {
+            // TODO Tomcat 无法正常关闭
+            // TODO 测试Spring 启动
             Thread.sleep(15000);
             logger.info("Time to test elapsed, start to close server");
-            // TODO 还是无法优雅关闭，存在遗漏线程
             provider.stop();
             nameService.stop();
         } catch (Exception e) {

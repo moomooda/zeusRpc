@@ -1,0 +1,1 @@
+redis = group.zeus.spi.nameservice.RedisImpl

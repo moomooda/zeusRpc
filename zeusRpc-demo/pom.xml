@@ -31,6 +31,21 @@
             <artifactId>zeusRpc-spi-default</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
+        <!-- Tomcat-->
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>9.0.31</version>
+        </dependency>
+
+        <!-- Redis -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+
     </dependencies>
 
 </project>
