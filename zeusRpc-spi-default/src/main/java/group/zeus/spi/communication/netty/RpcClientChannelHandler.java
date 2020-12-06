@@ -10,6 +10,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,6 @@ public class RpcClientChannelHandler extends SimpleChannelInboundHandler<RpcResp
     private ConcurrentMap<String, RpcFuture> pendingRpc = new ConcurrentHashMap<>(32);
     private volatile Channel channel;
     private SocketAddress remotePeer;
-    private RpcProtocol rpcProtocol;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -57,14 +57,19 @@ public class RpcClientChannelHandler extends SimpleChannelInboundHandler<RpcResp
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        super.userEventTriggered(ctx, evt);
+        if(evt instanceof IdleStateEvent){
+            // Send ping
+            handle(Beats.BEAT_PING);
+            logger.debug("Client send beat-ping to " + remotePeer);
+        }else{
+            super.userEventTriggered(ctx, evt);
+        }
     }
 
     public RpcFuture handle(RpcRequest request) throws Exception {
         RpcFuture rpcFuture = new RpcFuture(request);
         pendingRpc.put(request.getRequestId(), rpcFuture);
         try{
-            // FIXME 如果是连续两个RpcEncoder，显然编码会错误，可是channelFuture是success
             ChannelFuture channelFuture = channel.writeAndFlush(request).sync();
             if(!channelFuture.isSuccess()){
                 logger.error("Send request {} error", request.getRequestId());

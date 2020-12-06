@@ -1,6 +1,5 @@
 package group.zeus.spi.nameservice;
 
-import group.zeus.rpc.annotation.RpcService;
 import group.zeus.rpc.dto.RpcProtocol;
 import group.zeus.rpc.dto.RpcServiceInfo;
 import group.zeus.rpc.util.ServiceUtils;
