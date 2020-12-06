@@ -3,6 +3,8 @@ package group.zeus.spi.nameservice;
 import group.zeus.rpc.core.INameService;
 import group.zeus.rpc.dto.RpcProtocol;
 import group.zeus.rpc.dto.RpcServiceInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.Map;
  */
 public class RedisImpl implements INameService {
 
+    private static final Logger logger = LoggerFactory.getLogger(RedisImpl.class);
     private static final List<RpcProtocol> RPC_PROTOCOLS = new ArrayList<>();
     private boolean registry = false;
 
@@ -47,6 +50,7 @@ public class RedisImpl implements INameService {
             if (registry)
                 RedisOperator.getJedis().del(RedisConstants.REDIS_RPC_KEY);
             RedisOperator.returnResource(RedisOperator.getJedis());
+            logger.info("Redis stop");
         }
     }
 

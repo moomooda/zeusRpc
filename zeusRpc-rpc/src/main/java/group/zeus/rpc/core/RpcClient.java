@@ -85,5 +85,4 @@ public class RpcClient implements ApplicationContextAware, InitializingBean, Dis
         return (T)Proxy.newProxyInstance(interfaceClass.getClassLoader(),new Class<?>[]{interfaceClass},
                 new RpcProxy<T>(interfaceClass, version, iConsumer,iLoadBalance, iNameService));
     }
-    // TODO 代理对象完成实际服务发现和调用handler的逻辑，怎么封装
 }

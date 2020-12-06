@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * FIXME 多个线程同时触发route，线程不安全
+ * FIXME 多个线程同时触发route，可能线程不安全
  * @Author: maodazhan
  * @Date: 2020/11/22 14:50
  */

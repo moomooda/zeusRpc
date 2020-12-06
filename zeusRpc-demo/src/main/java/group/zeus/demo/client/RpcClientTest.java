@@ -1,16 +1,18 @@
 package group.zeus.demo.client;
 
+import group.zeus.demo.api.Person;
 import group.zeus.rpc.core.IConsumer;
 import group.zeus.rpc.core.ILoadBalance;
 import group.zeus.rpc.core.INameService;
 import group.zeus.rpc.core.RpcClient;
 import group.zeus.spi.SpiFactory;
-import group.zeus.demo.api.HelloService;
+import group.zeus.demo.api.WelcomeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Netty+zookeeper+一致性hash
+ * Tomcat+redis+roundRobin
  * 不使用Spring驱动
  * @Author: maodazhan
  * @Date: 2020/11/15 19:11
@@ -28,10 +30,11 @@ public class RpcClientTest {
         String discoverAddress = "222.28.84.14:6379";
         RpcClient rpcClient = new RpcClient(discoverAddress, consumer, nameService, loadBalance);
         nameService.discover(discoverAddress);
-        HelloService helloService1 = rpcClient.createProxy(HelloService.class, "1.0");
+        WelcomeService welcomeService1 = rpcClient.createProxy(WelcomeService.class, "1.0");
         // done 只有一条tcp连接被创建
         for(int i=0;i<=100;i++) {
-            System.out.println(helloService1.hello("maodazhan"));
+//            System.out.println(welcomeService1.welcome("maodazhan"));
+            System.out.println(welcomeService1.welcome(new Person("dazhan", "mao")));
         }
         try {
             nameService.stop();

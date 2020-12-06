@@ -23,10 +23,10 @@ public class RpcServerConfiguration {
     @Value("${zeusRpc.INameService}")
     private String nameservice;
 
-    @Value("${zeusRpc.serviceAddress")
+    @Value("${zeusRpc.serviceAddress}")
     private String serviceAddress;
 
-    @Value("${zeusRpc.registryAddress")
+    @Value("${zeusRpc.registryAddress}")
     private String registryAddress;
 
     @Bean

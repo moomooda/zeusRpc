@@ -7,6 +7,7 @@ import group.zeus.rpc.core.RpcClient;
 import group.zeus.spi.SpiFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
@@ -28,7 +29,7 @@ public class RpcClientConfiguration {
     @Value("${zeusRpc.ILoadBalance}")
     private String load_balance;
 
-    @Value("${zeusRpc.discoverAddress")
+    @Value("${zeusRpc.discoverAddress}")
     private String discoverAddress;
 
     @Bean

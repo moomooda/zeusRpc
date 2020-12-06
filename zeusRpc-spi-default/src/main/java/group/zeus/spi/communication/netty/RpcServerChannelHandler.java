@@ -7,6 +7,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cglib.reflect.FastClass;
@@ -41,7 +42,13 @@ public class RpcServerChannelHandler extends SimpleChannelInboundHandler<RpcRequ
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        super.userEventTriggered(ctx, evt);
+        if (evt instanceof IdleStateEvent){
+            // 直接关掉
+            ctx.channel().close();
+            logger.warn("Channel idle last {} seconds, close it", Beats.BRAT_TIMEOUT);
+        } else{
+            super.userEventTriggered(ctx, evt);
+        }
     }
 
     @Override

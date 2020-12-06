@@ -1,6 +1,6 @@
 package group.zeus.demo.server;
 
-import group.zeus.demo.api.HelloService;
+import group.zeus.demo.api.WelcomeService;
 import group.zeus.demo.api.Person;
 import group.zeus.rpc.annotation.RpcService;
 
@@ -8,16 +8,16 @@ import group.zeus.rpc.annotation.RpcService;
  * @Author: maodazhan
  * @Date: 2020/11/9 10:25
  */
-@RpcService(value =  HelloService.class, version = "1.0")
-public class HelloImpl implements HelloService{
+@RpcService(value =  WelcomeService.class, version = "1.0")
+public class HelloImpl implements WelcomeService {
 
     @Override
-    public String hello(String name) {
+    public String welcome(String name) {
         return "Hello " + name;
     }
 
     @Override
-    public String hello(Person person) {
+    public String welcome(Person person) {
         return "Hello " + person.getFirstName() + " " + person.getLastName();
     }
 }
