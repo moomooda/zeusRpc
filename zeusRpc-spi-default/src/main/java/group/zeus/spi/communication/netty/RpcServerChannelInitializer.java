@@ -32,7 +32,7 @@ public class RpcServerChannelInitializer extends ChannelInitializer<SocketChanne
     protected void initChannel(SocketChannel ch) throws Exception {
         Serializer serializer = ProtostuffSerializer.class.newInstance();
         ChannelPipeline cp = ch.pipeline();
-        cp.addLast(new IdleStateHandler(0,0, Beats.BRAT_TIMEOUT, TimeUnit.SECONDS));
+        cp.addLast(new IdleStateHandler(0,0, Beats.BEAT_TIMEOUT, TimeUnit.SECONDS));
         cp.addLast(new LengthFieldBasedFrameDecoder(65536, 0, 4, 0,0));
         cp.addLast(new RpcDecoder(RpcRequest.class, serializer));
         cp.addLast(new RpcEncoder(RpcResponse.class, serializer));

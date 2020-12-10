@@ -45,7 +45,7 @@ public class RpcServerChannelHandler extends SimpleChannelInboundHandler<RpcRequ
         if (evt instanceof IdleStateEvent){
             // 直接关掉
             ctx.channel().close();
-            logger.warn("Channel idle last {} seconds, close it", Beats.BRAT_TIMEOUT);
+            logger.warn("Channel idle last {} seconds, close it", Beats.BEAT_TIMEOUT);
         } else{
             super.userEventTriggered(ctx, evt);
         }

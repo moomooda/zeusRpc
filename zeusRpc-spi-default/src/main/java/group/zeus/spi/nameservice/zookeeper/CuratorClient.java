@@ -52,9 +52,9 @@ public class CuratorClient {
         pathChildrenCache.getListenable().addListener(listener);
     }
 
-//    public void addConnectionStateListener(ConnectionStateListener connectionStateListener){
-//        client.getConnectionStateListenable().addListener(connectionStateListener);
-//    }
+    public void addConnectionStateListener(ConnectionStateListener connectionStateListener){
+        client.getConnectionStateListenable().addListener(connectionStateListener);
+    }
 
     public void createPathData(String path, byte[] data) throws Exception{
         client.create().creatingParentContainersIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL)

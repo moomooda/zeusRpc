@@ -8,6 +8,8 @@ import group.zeus.spi.nameservice.NameServiceUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,21 +52,31 @@ public class ZookeeperImpl implements INameService {
             String serviceData = rpcProtocol.toJson();
             byte[] bytes = serviceData.getBytes();
             String path = ZkConstants.ZK_DATA_PATH + "-" + rpcProtocol.hashCode();
-            this.curatorClient.createPathData(path, bytes);
+            doRegister(path, bytes, serviceInfoList.size(), rpcProtocol);
             pathList.add(path);
-            logger.info("Register {} new service, host: {}, port: {}", serviceInfoList.size(), rpcProtocol.getHost(), rpcProtocol.getPort());
         } catch (Exception ex) {
             logger.error("Register service fail, exception: {}", ex.getMessage());
         }
-//        this.curatorClient.addConnectionStateListener(new ConnectionStateListener() {
-//            @Override
-//            public void stateChanged(CuratorFramework client, ConnectionState newState) {
-//                if (newState == ConnectionState.RECONNECTED) {
-//                    logger.info("Connection state:{}, register service after reconnected", newState);
-//                    register(registryAddress, serviceAddress, serviceMap);
-//                }
-//            }
-//        });
+
+    }
+
+    private void doRegister(String path, byte[] bytes, int serviceNums, RpcProtocol rpcProtocol){
+        try {
+            this.curatorClient.createPathData(path, bytes);
+            logger.info("Register {} new service, host: {}, port: {}", serviceNums, rpcProtocol.getHost(), rpcProtocol.getPort());
+        }catch (Exception ex){
+            logger.error("Register service fail, exception: {}", ex.getMessage());
+        }
+        // FIXME zk上存在非常多的节点，似乎是本地开了太多的线程去连接它
+        this.curatorClient.addConnectionStateListener(new ConnectionStateListener() {
+            @Override
+            public void stateChanged(CuratorFramework client, ConnectionState newState) {
+                if (newState == ConnectionState.RECONNECTED) {
+                    logger.info("Connection state:{}, register service after reconnected", newState);
+                    doRegister(path, bytes, serviceNums, rpcProtocol);
+                }
+            }
+        });
     }
 
     @Override

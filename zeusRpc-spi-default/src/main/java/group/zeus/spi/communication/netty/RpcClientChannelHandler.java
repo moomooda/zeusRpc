@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -29,11 +30,22 @@ public class RpcClientChannelHandler extends SimpleChannelInboundHandler<RpcResp
     private ConcurrentMap<String, RpcFuture> pendingRpc = new ConcurrentHashMap<>(32);
     private volatile Channel channel;
     private SocketAddress remotePeer;
+    private int expire = 0;
+
+    private Map<RpcProtocol, RpcClientChannelHandler> VALID_CONNECT_NODES;
+    private RpcProtocol rpcProtocol;
+
+    public RpcClientChannelHandler(Map<RpcProtocol, RpcClientChannelHandler> VALID_CONNECT_NODES, RpcProtocol rpcProtocol){
+        this.VALID_CONNECT_NODES = VALID_CONNECT_NODES;
+        this.rpcProtocol = rpcProtocol;
+    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
         this.remotePeer = this.channel.remoteAddress();
+        // channel重新开始活跃，置0
+        expire = 0;
     }
 
     @Override
@@ -58,25 +70,36 @@ public class RpcClientChannelHandler extends SimpleChannelInboundHandler<RpcResp
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if(evt instanceof IdleStateEvent){
-            // Send ping
-            handle(Beats.BEAT_PING);
-            logger.debug("Client send beat-ping to " + remotePeer);
+            expire += Beats.BEAT_INTERVAL;
+            // 空闲时间超过 10 * BRAT_TIMEOUT
+            if (expire > Beats.BEAT_EXPIRITION) {
+                ctx.channel().close();
+                VALID_CONNECT_NODES.remove(rpcProtocol);
+                logger.info("Idle connection on rpcProtocol: {}:{} removed from connection pool", rpcProtocol.getHost(), rpcProtocol.getPort());
+            }
+            else {
+                // Send ping
+                handle(Beats.BEAT_PING);
+                logger.debug("Client send beat-ping to " + remotePeer);
+            }
         }else{
             super.userEventTriggered(ctx, evt);
         }
     }
 
-    public RpcFuture handle(RpcRequest request) throws Exception {
+    public RpcFuture handle(RpcRequest request){
         RpcFuture rpcFuture = new RpcFuture(request);
         pendingRpc.put(request.getRequestId(), rpcFuture);
-        try{
-            ChannelFuture channelFuture = channel.writeAndFlush(request).sync();
-            if(!channelFuture.isSuccess()){
-                logger.error("Send request {} error", request.getRequestId());
+        channel.writeAndFlush(request).addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (!future.isSuccess()){
+                    logger.error("Send request {} error", request.getRequestId());
+                    channel.close();
+                    VALID_CONNECT_NODES.remove(rpcProtocol);
+                }
             }
-        }catch (InterruptedException ex){
-            logger.error("Send request exception: " + ex.getMessage());
-        }
+        });
         return rpcFuture;
     }
 
