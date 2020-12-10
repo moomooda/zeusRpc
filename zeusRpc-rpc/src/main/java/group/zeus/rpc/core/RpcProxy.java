@@ -1,11 +1,13 @@
 package group.zeus.rpc.core;
 
+import group.zeus.rpc.dto.RpcResponse;
 import group.zeus.rpc.util.ServiceUtils;
 import group.zeus.rpc.dto.RpcProtocol;
 import group.zeus.rpc.dto.RpcRequest;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.sql.Driver;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +33,21 @@ public class RpcProxy<T> implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+
+        if (Object.class == method.getDeclaringClass()) {
+            String name = method.getName();
+            if ("equals".equals(name)) {
+                return proxy == args[0];
+            } else if ("hashCode".equals(name)) {
+                return System.identityHashCode(proxy);
+            } else if ("toString".equals(name)) {
+                return proxy.getClass().getName() + "@" +
+                        Integer.toHexString(System.identityHashCode(proxy)) +
+                        ", with InvocationHandler " + this;
+            } else {
+                throw new IllegalStateException(String.valueOf(method));
+            }
+        }
         // 构造请求体
         RpcRequest rpcRequest = new RpcRequest();
         rpcRequest.setRequestId(UUID.randomUUID().toString());
@@ -41,8 +58,15 @@ public class RpcProxy<T> implements InvocationHandler {
         rpcRequest.setVersion(version);
         String serviceKey = ServiceUtils.buildServiceKey(this.interfaceClass.getName(), version);
         RpcProtocol rpcProtocol = chooseRpcProtocol(serviceKey);
-        RpcFuture future = (RpcFuture) iConsumer.connect(rpcProtocol, rpcRequest);
-        return future.get();
+        Object result =  iConsumer.connect(rpcProtocol, rpcRequest);
+        if (result instanceof RpcFuture)
+            // 异步调用
+            return ((RpcFuture) result).get();
+        else if (result instanceof RpcResponse)
+            // 同步调用
+            return ((RpcResponse)result).getResult();
+        else
+            throw new RuntimeException("Wrong response object received,Check again...");
     }
 
     /**

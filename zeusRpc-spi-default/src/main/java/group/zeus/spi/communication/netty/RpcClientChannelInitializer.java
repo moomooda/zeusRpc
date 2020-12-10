@@ -1,5 +1,6 @@
 package group.zeus.spi.communication.netty;
 
+import group.zeus.rpc.dto.RpcProtocol;
 import group.zeus.rpc.serializer.ProtostuffSerializer;
 import group.zeus.rpc.serializer.Serializer;
 import group.zeus.rpc.dto.RpcRequest;
@@ -10,6 +11,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -17,6 +19,15 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2020/11/1 21:20
  */
 public class RpcClientChannelInitializer extends ChannelInitializer<SocketChannel> {
+
+    private Map<RpcProtocol, RpcClientChannelHandler> VALID_CONNECT_NODES;
+    private RpcProtocol rpcProtocol;
+
+    public RpcClientChannelInitializer(Map<RpcProtocol, RpcClientChannelHandler> VALID_CONNECT_NODES, RpcProtocol rpcProtocol){
+        this.VALID_CONNECT_NODES = VALID_CONNECT_NODES;
+        this.rpcProtocol = rpcProtocol;
+    }
+
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
 
@@ -27,6 +38,6 @@ public class RpcClientChannelInitializer extends ChannelInitializer<SocketChanne
         cp.addLast(new LengthFieldBasedFrameDecoder(65536, 0, 4, 0, 0));
         cp.addLast(new RpcEncoder(RpcRequest.class,serializer));
         cp.addLast(new RpcDecoder(RpcResponse.class, serializer));
-        cp.addLast(new RpcClientChannelHandler());
+        cp.addLast(new RpcClientChannelHandler(VALID_CONNECT_NODES, rpcProtocol));
     }
 }

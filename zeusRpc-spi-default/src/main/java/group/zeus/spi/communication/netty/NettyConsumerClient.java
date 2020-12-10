@@ -26,7 +26,6 @@ public class NettyConsumerClient implements IConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyConsumerClient.class);
     /*可以复用的连接缓存*/
-    // TODO 可能会有大量的无效Handler存在于Map缓存
     public static final Map<RpcProtocol, RpcClientChannelHandler> VALID_CONNECT_NODES = new ConcurrentHashMap<>(128);
     private EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
@@ -35,7 +34,7 @@ public class NettyConsumerClient implements IConsumer {
         logger.info("New connect to remotePeer {} has been builded", remotePeer);
         Bootstrap b = new Bootstrap();
         b.group(eventLoopGroup).channel(NioSocketChannel.class)
-                .handler(new RpcClientChannelInitializer());
+                .handler(new RpcClientChannelInitializer(VALID_CONNECT_NODES, rpcProtocol));
         RpcClientChannelHandler handler = null;
         try {
             ChannelFuture channelFuture = b.connect(remotePeer).sync();
@@ -60,22 +59,14 @@ public class NettyConsumerClient implements IConsumer {
     }
 
     @Override
-    public RpcFuture connect(RpcProtocol rpcProtocol, RpcRequest request){
+    public Object connect(RpcProtocol rpcProtocol, RpcRequest request){
         RpcClientChannelHandler rpcRequestHandler;
         rpcRequestHandler = VALID_CONNECT_NODES.get(rpcProtocol);
         if (rpcRequestHandler == null) {
             rpcRequestHandler = doConnect(rpcProtocol);
             VALID_CONNECT_NODES.putIfAbsent(rpcProtocol, rpcRequestHandler);
         }
-        RpcFuture rpcFuture = null;
-        try {
-            rpcFuture = rpcRequestHandler.handle(request);
-        } catch (Exception ex){
-            logger.warn("Request error,connection {} : {} removed from cache", rpcProtocol.getHost(), rpcProtocol.getPort());
-            // 请求失败，该连接需移除
-            rpcRequestHandler.close();
-            VALID_CONNECT_NODES.remove(rpcProtocol);
-        }
+        RpcFuture rpcFuture = rpcRequestHandler.handle(request);
         return rpcFuture;
     }
 }

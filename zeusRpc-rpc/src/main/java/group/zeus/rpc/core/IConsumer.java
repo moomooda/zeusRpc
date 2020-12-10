@@ -13,7 +13,7 @@ public interface IConsumer {
      * @param request rpc请求
      * @return 返回结果
      */
-    RpcFuture connect(RpcProtocol rpcProtocol, RpcRequest request) throws Exception;
+    Object connect(RpcProtocol rpcProtocol, RpcRequest request) throws Exception;
 
     /**
      * 关闭连接
