@@ -18,10 +18,13 @@ public class RpcClientBootStrap {
         welcome.welcome("maodazhan");
 
         // 测试心跳
-        try {
-            Thread.sleep(150000);
-        } catch (Exception ex){
-            //
-        }
+//        try {
+//            Thread.sleep(1000000);
+//            welcome.welcome(new Person("dazhan", "mao"));
+//            welcome.welcome("maodazhan");
+//            Thread.sleep(100000);
+//        } catch (Exception ex){
+//            //
+//        }
     }
 }

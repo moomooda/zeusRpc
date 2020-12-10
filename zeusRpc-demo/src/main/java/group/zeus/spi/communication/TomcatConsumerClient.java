@@ -1,7 +1,6 @@
 package group.zeus.spi.communication;
 
 import group.zeus.rpc.core.IConsumer;
-import group.zeus.rpc.core.RpcFuture;
 import group.zeus.rpc.dto.RpcProtocol;
 import group.zeus.rpc.dto.RpcRequest;
 import group.zeus.rpc.dto.RpcResponse;
@@ -24,7 +23,7 @@ public class TomcatConsumerClient implements IConsumer {
     private static final Logger logger = LoggerFactory.getLogger(TomcatConsumerClient.class);
 
     @Override
-    public RpcFuture connect(RpcProtocol rpcProtocol, RpcRequest request) throws Exception {
+    public Object connect(RpcProtocol rpcProtocol, RpcRequest request) throws Exception {
 
         String host = rpcProtocol.getHost();
         int port = rpcProtocol.getPort();
@@ -47,10 +46,7 @@ public class TomcatConsumerClient implements IConsumer {
             RpcResponse result = (RpcResponse) objectInputStream.readObject();
             objectInputStream.close();
 
-            RpcFuture rpcFuture = new RpcFuture(request);
-            rpcFuture.done(result);
-
-            return rpcFuture;
+            return result;
         } catch(Exception ex){
             logger.error("Request error: ", ex.getMessage());
         }
